@@ -120,21 +120,17 @@ with torch.no_grad():
     test_loss = 0
     accuracy = 0
     for inputs, labels in cats_v_dogs.test_loader:
-        try:
-            # Shift computation to GPU
-            inputs, labels = inputs.to(device), labels.to(device)
-            output = covnet(inputs)
-            loss = loss_function(output, labels)
-            test_loss += loss.item()
+        # Shift computation to GPU
+        inputs, labels = inputs.to(device), labels.to(device)
+        output = covnet(inputs)
+        loss = loss_function(output, labels)
+        test_loss += loss.item()
 
-            # Calculate accuracy
-            output = torch.exp(output)
-            top_ps, top_class = output.topk(1, dim=1)
-            equals = top_class == labels.view(*top_class.shape)
-            accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
-
-        except Exception as e:
-            print(str(e))
+        # Calculate accuracy
+        output = torch.exp(output)
+        top_ps, top_class = output.topk(1, dim=1)
+        equals = top_class == labels.view(*top_class.shape)
+        accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
 
     print("Test loss: {:.8f}..".format(test_loss / len(cats_v_dogs.test_loader)),
           "Test Accuracy: {:.8f}".format(accuracy / len(cats_v_dogs.test_loader)))
